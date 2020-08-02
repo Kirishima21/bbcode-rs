@@ -69,14 +69,14 @@ mod tests {
     #[test]
     fn quote() {
         assert_eq!("[quote]test[/quote]".as_html(),
-                   r#"<div class="quote">test</div>"#)
+                   r#"<blockquote>test</blockquote>"#)
     }
 
     #[test]
     fn named_quote() {
         assert_eq!("[quote=Author]test[/quote]".as_html(),
-                   r#"<div class="quote"><strong>Author wrote:</strong>
-test</div>"#)
+                   r#"<blockquote><strong>Author wrote:</strong>
+test</blockquote>"#)
     }
 
     #[test]
@@ -310,9 +310,9 @@ pub fn patterns() -> &'static [(Regex, &'static str); 26] {
             "<a href=\"$2\" rel=\"nofollow\" target=\"_new\">$1</a>"),
           // Quotes
           (Regex::new(r"(?s)\[quote\](.*?)\[/quote\]").unwrap(),
-            "<div class=\"quote\">$1</div>"),
+            "<blockquote>$1</blockquote>"),
           (Regex::new(r"(?s)\[quote=(.+)\](.*?)\[/quote\]").unwrap(),
-            "<div class=\"quote\"><strong>$1 wrote:</strong>\n$2</div>"),
+            "<blockquote><strong>$1 wrote:</strong>\n$2</blockquote>"),
           // Images
           (Regex::new(r"(?s)\[img=(\d+)x(\d+)(\b.*)?\](.*?)\[/img\]").unwrap(),
             "<img src=\"$4\" width=\"$1\" height=\"$2\"$3 />"),
