@@ -1,6 +1,6 @@
 [package]
 name = "bbcode"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Chris MacNaughton <chris@centaurisolutions.nl>"]
 description = """
 bbcode is a trait and impl for &str that compiles BBCode into HTML
