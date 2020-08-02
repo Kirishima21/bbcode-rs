@@ -5,6 +5,8 @@ extern crate regex;
 
 use regex::{Captures, Regex};
 
+const PATTERNS_AMOUNT : usize = 28;
+
 #[cfg(test)]
 mod tests {
 
@@ -240,6 +242,18 @@ test</blockquote>"#)
                    "<object width=\"560\" \
                     height=\"315\" data=\"http://www.youtube.com/embed/test\"></object>")
     }
+
+    #[test]
+    fn sub() {
+        assert_eq!("[sub]Test text[/sub]".as_html(),
+                   "<sub>Test text</sub>")
+    }
+
+    #[test]
+    fn sup() {
+        assert_eq!("[sup]Test [/sup]text".as_html(),
+                   "<sup>Test </sup>text")
+    }
 }
 
 /// BBCode is a trait that will convert the input BBCode into HTML
@@ -279,9 +293,9 @@ fn code_replacer(captures: &Captures) -> String {
     format!("<pre><code>{}</code></pre>", replaced)
 }
 
-pub fn patterns() -> &'static [(Regex, &'static str); 26] {
+pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
     lazy_static!{
-        static ref  PATTERNS: [(Regex, &'static str); 26] = [
+        static ref  PATTERNS: [(Regex, &'static str); PATTERNS_AMOUNT] = [
           // Font changes
           (Regex::new(r"(?s)\[b\](.*?)\[/b\]").unwrap(), "<strong>$1</strong>"),
           (Regex::new(r"(?s)\[i\](.*?)\[/i\]").unwrap(), "<em>$1</em>"),
@@ -331,6 +345,8 @@ pub fn patterns() -> &'static [(Regex, &'static str); 26] {
           "<object width=\"$1\" height=\"$2\" data=\"http://www.youtube.com/embed/$3\"></object>"),
           // List Items
           (Regex::new(r"(?s)\[li\](.*?)\[/li\]").unwrap(), "<li>$1</li>"),
+          (Regex::new(r"(?s)\[sub\](.*?)\[/sub\]").unwrap(), "<sub>$1</sub>"),
+          (Regex::new(r"(?s)\[sup\](.*?)\[/sup\]").unwrap(), "<sup>$1</sup>"),
           ];
 
       }
