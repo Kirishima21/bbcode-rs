@@ -5,15 +5,15 @@ extern crate regex;
 
 use regex::{Captures, Regex};
 
-const PATTERNS_AMOUNT : usize = 28;
+const PATTERNS_AMOUNT: usize = 29;
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     mod font_manipulation {
         use super::*;
+
         #[test]
         fn bold() {
             assert_eq!("[b]test[/b]".as_html(), "<strong>test</strong>")
@@ -49,6 +49,7 @@ mod tests {
 
     mod alignment {
         use super::*;
+
         #[test]
         fn left() {
             assert_eq!("[left]test[/left]".as_html(),
@@ -115,8 +116,7 @@ test</blockquote>"#)
 
         #[test]
         fn with_metadata() {
-            assert_eq!(r#"[img width="100" height="50" alt="alt" title="title"]test[/img]"#
-                           .as_html(),
+            assert_eq!(r#"[img width="100" height="50" alt="alt" title="title"]test[/img]"#.as_html(),
                        "<img src=\"test\" width=\"100\" height=\"50\" alt=\"alt\" \
                         title=\"title\" />")
         }
@@ -124,6 +124,7 @@ test</blockquote>"#)
 
     mod list {
         use super::*;
+
         #[test]
         fn ordered() {
             assert_eq!(r#"[ol]test[/ol]"#.as_html(), r#"<ol>test</ol>"#)
@@ -134,8 +135,7 @@ test</blockquote>"#)
             assert_eq!(r#"[ol]
 [li]Item one[/li]
 [li]Item two[/li]
-[/ol]"#
-                           .as_html(),
+[/ol]"#.as_html(),
                        r#"<ol>
 <li>Item one</li>
 <li>Item two</li>
@@ -152,8 +152,7 @@ test</blockquote>"#)
             assert_eq!(r#"[ul]
 [li]Item one[/li]
 [li]Item two[/li]
-[/ul]"#
-                           .as_html(),
+[/ul]"#.as_html(),
                        r#"<ul>
 <li>Item one</li>
 <li>Item two</li>
@@ -197,8 +196,7 @@ test</blockquote>"#)
                 [td]Test[/td]
                 [td]Yesterday[/td]
               [/tr]
-[/table]"
-                           .as_html(),
+[/table]".as_html(),
                        r"<table>
               <tr>
                 <th>Name</th>
@@ -218,6 +216,7 @@ test</blockquote>"#)
 
         mod content {
             use super::*;
+
             #[test]
             fn cell() {
                 assert_eq!("[td]test[/td]".as_html(), "<td>test</td>")
@@ -254,6 +253,11 @@ test</blockquote>"#)
         assert_eq!("[sup]Test [/sup]text".as_html(),
                    "<sup>Test </sup>text")
     }
+    #[test]
+    fn gacha() {
+        assert_eq!("[gacha=N]N: 青じそドレッシング[/gacha]text".as_html(),
+                   "<span class=\"N\">N: 青じそドレッシング</span>text")
+    }
 }
 
 /// BBCode is a trait that will convert the input BBCode into HTML
@@ -271,22 +275,18 @@ pub trait BBCode {
 
 fn code(input: &str) -> String {
     let mut output = input.to_owned();
-    lazy_static!{
+    lazy_static! {
           static ref  CODE: Regex = Regex::new(
             r"(?s)\[(code|preformatted)\](.*?)\[/(code|preformatted)\]"
           ).unwrap();
         }
 
-    output = CODE.replace_all(&output, code_replacer)
-        .to_string();
+    output = CODE.replace_all(&output, code_replacer).to_string();
     output
 }
 
 fn code_replacer(captures: &Captures) -> String {
-    let mut replaced = captures.get(2)
-        .unwrap()
-        .as_str()
-        .to_string();
+    let mut replaced = captures.get(2).unwrap().as_str().to_string();
     for &(input, output) in [("[", "&#91;"), ("]", "&#93;"), ("<br />", "\n")].iter() {
         replaced = replaced.replace(&input, &output);
     }
@@ -294,7 +294,7 @@ fn code_replacer(captures: &Captures) -> String {
 }
 
 pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
-    lazy_static!{
+    lazy_static! {
         static ref  PATTERNS: [(Regex, &'static str); PATTERNS_AMOUNT] = [
           // Font changes
           (Regex::new(r"(?s)\[b\](.*?)\[/b\]").unwrap(), "<strong>$1</strong>"),
@@ -347,6 +347,7 @@ pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
           (Regex::new(r"(?s)\[li\](.*?)\[/li\]").unwrap(), "<li>$1</li>"),
           (Regex::new(r"(?s)\[sub\](.*?)\[/sub\]").unwrap(), "<sub>$1</sub>"),
           (Regex::new(r"(?s)\[sup\](.*?)\[/sup\]").unwrap(), "<sup>$1</sup>"),
+            (Regex::new(r"(?s)\[gacha=(N|HN|R|SR|SSR|UR|LR)\](.*?)\[/gacha\]").unwrap(), "<span class=\"$1\">$2</span>"),
           ];
 
       }
@@ -364,6 +365,5 @@ pub fn str_to_html(input: &str) -> String {
 impl<'a> BBCode for &'a str {
     fn as_html(&self) -> String {
         str_to_html(&self)
-
     }
 }
