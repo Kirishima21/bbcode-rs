@@ -263,6 +263,11 @@ test</blockquote>"#)
         assert_eq!("[spin]spin[/spin]text".as_html(),
                    "<span class=\"fa fa-spin\">spin</span>text")
     }
+    #[test]
+    fn spin_spin() {
+        assert_eq!("[spin]spin[spin]spin[/spin][/spin]text".as_html(),
+                   "<span class=\"fa fa-spin\">spin<span class=\"fa fa-spin\">spin</span></span>text")
+    }
 }
 
 /// BBCode is a trait that will convert the input BBCode into HTML
@@ -363,7 +368,16 @@ pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
 pub fn str_to_html(input: &str) -> String {
     let mut output = code(&input);
     for &(ref pattern, replace) in patterns() {
-        output = pattern.replace_all(&output, replace).into_owned();
+        loop {
+            match pattern.is_match(&output) {
+                true => {
+                    output = pattern.replace_all(&output, replace).into_owned();
+                },
+                false => {
+                    break
+                }
+            }
+        }
     }
     output
 }
