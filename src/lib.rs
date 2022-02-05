@@ -5,7 +5,7 @@ extern crate regex;
 
 use regex::{Captures, Regex};
 
-const PATTERNS_AMOUNT: usize = 29;
+const PATTERNS_AMOUNT: usize = 30;
 
 #[cfg(test)]
 mod tests {
@@ -258,6 +258,11 @@ test</blockquote>"#)
         assert_eq!("[gacha=N]N: 青じそドレッシング[/gacha]text".as_html(),
                    "<span class=\"N\">N: 青じそドレッシング</span>text")
     }
+    #[test]
+    fn spin() {
+        assert_eq!("[spin]spin[/spin]text".as_html(),
+                   "<span class=\"fa fa-spin\">spin</span>text")
+    }
 }
 
 /// BBCode is a trait that will convert the input BBCode into HTML
@@ -347,7 +352,8 @@ pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
           (Regex::new(r"(?s)\[li\](.*?)\[/li\]").unwrap(), "<li>$1</li>"),
           (Regex::new(r"(?s)\[sub\](.*?)\[/sub\]").unwrap(), "<sub>$1</sub>"),
           (Regex::new(r"(?s)\[sup\](.*?)\[/sup\]").unwrap(), "<sup>$1</sup>"),
-            (Regex::new(r"(?s)\[gacha=(N|HN|R|SR|SSR|UR|LR)\](.*?)\[/gacha\]").unwrap(), "<span class=\"$1\">$2</span>"),
+          (Regex::new(r"(?s)\[gacha=(N|HN|R|SR|SSR|UR|LR)\](.*?)\[/gacha\]").unwrap(), "<span class=\"$1\">$2</span>"),
+            (Regex::new(r"(?s)\[spin](.*?)\[/spin\]").unwrap(), "<span class=\"fa fa-spin\">$1</span>"),
           ];
 
       }
