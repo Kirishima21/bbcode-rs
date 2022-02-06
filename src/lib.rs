@@ -5,7 +5,7 @@ extern crate regex;
 
 use regex::{Captures, Regex};
 
-const PATTERNS_AMOUNT: usize = 30;
+const PATTERNS_AMOUNT: usize = 36;
 
 #[cfg(test)]
 mod tests {
@@ -36,15 +36,15 @@ mod tests {
 
         #[test]
         fn color() {
-            assert_eq!("[color=red]test[/color]".as_html(),
-                       r#"<span style="color: red;">test</span>"#)
+            assert_eq!("[color=0123aF]test[/color]".as_html(),
+                       r#"<span style="color: #0123aF;">test</span>"#)
         }
 
-        #[test]
-        fn size() {
-            assert_eq!("[size=10]test[/size]".as_html(),
-                       r#"<span style="font-size: 10px;">test</span>"#)
-        }
+        // #[test]
+        // fn size() {
+        //     assert_eq!("[size=10]test[/size]".as_html(),
+        //                r#"<span style="font-size: 10px;">test</span>"#)
+        // }
     }
 
     mod alignment {
@@ -253,20 +253,65 @@ test</blockquote>"#)
         assert_eq!("[sup]Test [/sup]text".as_html(),
                    "<sup>Test </sup>text")
     }
+
     #[test]
     fn gacha() {
         assert_eq!("[gacha=N]N: 青じそドレッシング[/gacha]text".as_html(),
                    "<span class=\"N\">N: 青じそドレッシング</span>text")
     }
+
     #[test]
     fn spin() {
         assert_eq!("[spin]spin[/spin]text".as_html(),
                    "<span class=\"fa fa-spin\">spin</span>text")
     }
+
     #[test]
     fn spin_spin() {
         assert_eq!("[spin]spin[spin]spin[/spin][/spin]text".as_html(),
                    "<span class=\"fa fa-spin\">spin<span class=\"fa fa-spin\">spin</span></span>text")
+    }
+
+    #[test]
+    fn pulse() {
+        assert_eq!("[pulse]pulse[/pulse]text".as_html(),
+                   "<span class=\"bbcode-pulse-loading\">pulse</span>text")
+    }
+
+    #[test]
+    fn large() {
+        assert_eq!("[large=2x]large[/large]text".as_html(),
+                   "<span class=\"fa fa-2x\">large</span>text")
+    }
+
+    #[test]
+    fn flip_vertical() {
+        assert_eq!("[flip=vertical]flip_vertical[/flip]text".as_html(),
+                   "<span class=\"fa fa-flip-vertical\">flip_vertical</span>text")
+    }
+
+    #[test]
+    fn flip_horizontal() {
+        assert_eq!("[flip=horizontal]flip_horizontal[/flip]text".as_html(),
+                   "<span class=\"fa fa-flip-horizontal\">flip_horizontal</span>text")
+    }
+
+    #[test]
+    fn rotatez() {
+        assert_eq!("[rotatez=45]rotatez[/rotatez]text".as_html(),
+                   "<span class=\"fa fa-rotatez45\">rotatez</span>text")
+    }
+
+    #[test]
+    fn rotate() {
+        assert_eq!("[rotate=1--1-1-180]rotate[/rotate]text".as_html(),
+                   "<span class=\"fa fa-rotate1--1-1-180\">rotate</span>text")
+    }
+
+    #[test]
+    fn marq_lateral() {
+        assert_eq!("[marq=lateral]marq_lateral[/marq]text".as_html(),
+                   "<span class=\"marquee\"><span class=\"bbcode-marq-lateral\">marq_lateral</span></span>text")
     }
 }
 
@@ -311,10 +356,10 @@ pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
           (Regex::new(r"(?s)\[i\](.*?)\[/i\]").unwrap(), "<em>$1</em>"),
           (Regex::new(r"(?s)\[u\](.*?)\[/u\]").unwrap(), "<u>$1</u>"),
           (Regex::new(r"(?s)\[s\](.*?)\[/s\]").unwrap(), "<strike>$1</strike>"),
-          (Regex::new(r"(?s)\[size=(\d+)](.*?)\[/size\]").unwrap(),
-            "<span style=\"font-size: ${1}px;\">$2</span>"),
-          (Regex::new(r"(?s)\[color=(.+)](.*?)\[/color\]").unwrap(),
-            "<span style=\"color: $1;\">$2</span>"),
+          // (Regex::new(r"(?s)\[size=(\d+)](.*?)\[/size\]").unwrap(),
+          //   "<span style=\"font-size: ${1}px;\">$2</span>"),
+          (Regex::new(r"(?s)\[color=([A-Fa-f0-9]{6})](.*?)\[/color\]").unwrap(),
+            "<span style=\"color: #$1;\">$2</span>"),
           // Alignment
           (Regex::new(r"(?s)\[center\](.*?)\[/center\]").unwrap(),
             "<div style=\"text-align: center;\">$1</div>"),
@@ -359,6 +404,13 @@ pub fn patterns() -> &'static [(Regex, &'static str); PATTERNS_AMOUNT] {
           (Regex::new(r"(?s)\[sup\](.*?)\[/sup\]").unwrap(), "<sup>$1</sup>"),
           (Regex::new(r"(?s)\[gacha=(N|HN|R|SR|SSR|UR|LR)\](.*?)\[/gacha\]").unwrap(), "<span class=\"$1\">$2</span>"),
             (Regex::new(r"(?s)\[spin](.*?)\[/spin\]").unwrap(), "<span class=\"fa fa-spin\">$1</span>"),
+            (Regex::new(r"(?s)\[pulse](.*?)\[/pulse\]").unwrap(), "<span class=\"bbcode-pulse-loading\">$1</span>"),
+            (Regex::new(r"(?s)\[large=(2x|3x|4x|5x|ex)](.*?)\[/large\]").unwrap(), "<span class=\"fa fa-$1\">$2</span>"),
+            (Regex::new(r"(?s)\[flip=vertical](.*?)\[/flip\]").unwrap(), "<span class=\"fa fa-flip-vertical\">$1</span>"),
+            (Regex::new(r"(?s)\[flip=horizontal](.*?)\[/flip\]").unwrap(), "<span class=\"fa fa-flip-horizontal\">$1</span>"),
+            (Regex::new(r"(?s)\[rotatez=(\d{1,3})](.*?)\[/rotatez\]").unwrap(), "<span class=\"fa fa-rotatez$1\">$2</span>"),
+            (Regex::new(r"(?s)\[marq=lateral](.*?)\[/marq\]").unwrap(), "<span class=\"marquee\"><span class=\"bbcode-marq-lateral\">$1</span></span>"),
+            (Regex::new(r"(?s)\[rotate=(-1|0|1)-(-1|0|1)-(-1|0|1)-([0-9]{1,3})](.*?)\[/rotate\]").unwrap(), "<span class=\"fa fa-rotate$1-$2-$3-$4\">$5</span>"),
           ];
 
       }
